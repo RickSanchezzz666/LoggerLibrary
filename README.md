@@ -1,0 +1,1 @@
+Single-Header Library for Simple logging in file using Plain C++ for Windows and Linux.
