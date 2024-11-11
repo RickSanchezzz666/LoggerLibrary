@@ -54,7 +54,7 @@ public:
 	- folder_path - absolute or relative path to folder where to store logs.
 	Example: "../folder" Win - "..\\"
 	*/
-	LogFile(const std::string& file_name, FileFormat file_format, const std::string& folder_path = "./") 
+	LogFile(const std::string& file_name, FileFormat file_format, const std::string& folder_path = REL_STAY)
 		: fileName(file_name), fileFormat(file_format), fullPath(folder_path) 
 	{
 		fileName.erase(std::remove_if(fileName.begin(), fileName.end(), ::isspace), fileName.end());
@@ -75,7 +75,7 @@ public:
 	- folder_path - absolute or relative path to folder where to store logs.
 	Example: "../folder" Win - "..\\"
 	*/
-	LogFile(const char* file_name, FileFormat file_format, const std::string& folder_path = "./") 
+	LogFile(const char* file_name, FileFormat file_format, const std::string& folder_path = REL_STAY)
 		: fileName(std::string(file_name)), fileFormat(file_format), fullPath(folder_path) 
 	{
 		fileName.erase(std::remove_if(fileName.begin(), fileName.end(), ::isspace), fileName.end());
@@ -90,13 +90,31 @@ public:
 
 	// File info validation
 	bool isInfoValid() {
-		return (isNameValid() && isPathValid());
+		return (isNameValid(fileName) && isPathValid());
+	}
+
+	const std::string& getFileName() const { return fileName; }
+	const FileFormat& getFileFormat() const { return fileFormat; }
+	const std::string& getFullFileName() const { return fileFullName; }
+
+	// set new file name
+	void setFileName(const std::string& newFileName) { 
+		if (isNameValid(newFileName)) {
+			fileName = newFileName;
+			concatFullName();
+		}
+	}
+
+	// set new file format: .csv, .txt, .log
+	void setFileFormat(const FileFormat& newFileFormat) {
+		fileFormat = newFileFormat;
+		concatFullName();
 	}
 
 	~LogFile() {};
 
 private:
-
+	// deleting unnecessary spaces before path
 	void pathRemoveLeadingSpaces() {
 		size_t firstNonSpace = fullPath.find_first_not_of(' ');
 		if (firstNonSpace != std::string::npos) {
@@ -105,13 +123,13 @@ private:
 	}
 
 	// Check method for invalid symbols in name
-	bool isNameValid() {
+	bool isNameValid(const std::string& file_name) {
 #ifdef _WIN32
 		const std::string forbiddenChars = "\\/:*?\"<>|";
 #else
 		const std::string forbiddenChars = "\\/";
 #endif
-		return (!fileName.empty() || fileName.find_first_of(forbiddenChars) != std::string::npos);
+		return (file_name.find_first_of(forbiddenChars) == std::string::npos && !file_name.empty());
 	};
 
 	// Check method for invalid symbols and format in path
@@ -145,7 +163,7 @@ private:
 
 	// Concatenate file name and format to full name: example.txt
 	void concatFullName() {
-		if (!isNameValid()) return;
+		if (!isNameValid(fileName)) return;
 		switch (fileFormat)
 		{
 		case TXT:
@@ -171,7 +189,7 @@ private:
 	FileFormat fileFormat = FileFormat::TXT;
 
 	std::string fileFullName = "logs.txt";
-	std::string fullPath = "./";
+	std::string fullPath = REL_STAY;
 };
 
 class Logger {
