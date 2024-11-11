@@ -15,19 +15,26 @@
 #ifndef LOGGER_MODULE_HPP
 #define LOGGER_MODULE_HPP
 
+
 #include <string>
 #include <algorithm> // remove_if
 #include <cctype> // ::isspace
 
+
 #ifdef _WIN32
+
 #define PATH_SEP '\\'
 #define REL_STAY ".\\"
 #define REL_LEAVE "..\\"
+
 #else
+
 #define PATH_SEP '/'
 #define REL_STAY "./"
 #define REL_LEAVE "../"
+
 #endif
+
 
 enum PathType { ABS, REL, INVALID };
 
