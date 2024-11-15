@@ -19,7 +19,7 @@
 #include <string>
 #include <algorithm> // remove_if
 #include <cctype> // ::isspace
-
+#include <fstream> // ofstream
 
 #ifdef _WIN32
 
@@ -44,6 +44,7 @@ enum FileFormat {
 	LOG
 };
 
+// LogFile
 class LogFile {
 public:
 	/*
@@ -65,6 +66,8 @@ public:
 		isPathAbsolute();
 
 		concatFullName();
+		
+		if (pathType != INVALID) initLogFile();
 	};
 
 	/*
@@ -86,16 +89,30 @@ public:
 		isPathAbsolute();
 
 		concatFullName();
+		
+		if (pathType != INVALID) {
+			bool fileInit = initLogFile();
+			if (!fileInit) pathType == INVALID;
+		}
 	};
 
 	// File info validation
 	bool isInfoValid() {
-		return (isNameValid(fileName) && isPathValid());
+		return (isNameValid(fileName) && isPathValid() && initLogFile());
 	}
+
 
 	const std::string& getFileName() const { return fileName; }
 	const FileFormat& getFileFormat() const { return fileFormat; }
 	const std::string& getFullFileName() const { return fileFullName; }
+
+	const std::string getFullPath() const { 
+		if (pathType != INVALID) {
+			if (pathType == REL && (fullPath == REL_STAY || fullPath == REL_LEAVE)) return fullPath + fileFullName;
+			else return fullPath + PATH_SEP + fileFullName;
+		}
+		return REL_STAY;
+	}
 
 	// set new file name
 	void setFileName(const std::string& newFileName) { 
@@ -114,6 +131,17 @@ public:
 	~LogFile() {};
 
 private:
+	// Initialization of log file
+	bool initLogFile() {
+		const std::string fullFilePath = getFullPath();
+		std::ifstream fileExists(fullFilePath);
+		if (!fileExists.good()) {
+			std::ofstream logFile(fullFilePath);
+			logFile.close();
+		}
+		return fileExists.good();
+	}
+
 	// deleting unnecessary spaces before path
 	void pathRemoveLeadingSpaces() {
 		size_t firstNonSpace = fullPath.find_first_not_of(' ');
@@ -176,7 +204,7 @@ private:
 			fileFullName = fileName + ".log";
 			break;
 		default:
-			// default .txt
+			// default: .txt
 			fileFullName = fileName + ".txt";
 			break;
 		}
@@ -190,11 +218,19 @@ private:
 
 	std::string fileFullName = "logs.txt";
 	std::string fullPath = REL_STAY;
+
+public:
+	//For Testing
+	bool isInfoValid(bool TEST) {
+		return (isNameValid(fileName) && isPathValid());
+	}
 };
 
+// Logger
 class Logger {
 public:
 	static void logToFile(LogFile& file) {};
+	static void logToFile(const std::string& file_path) {};
 };
 
 #endif // LOGGER_MODULE_HPP

@@ -2,11 +2,11 @@
 #include <iostream>
 
 int main() {
-	LogFile logFile("fileName", FileFormat::TXT, "");
+	LogFile logFile("fileName", FileFormat::TXT, "..\\");
 	
 	if (!logFile.isInfoValid()) {
-		std::cerr << "File info is not valid!";
-	} else std::cout << "Everything is fine!";
+		std::cerr << "File info is not valid!\n";
+	} else std::cout << "Everything is fine!\n";
 
 	return 0;
 }

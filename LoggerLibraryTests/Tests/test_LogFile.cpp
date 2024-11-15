@@ -7,6 +7,11 @@
 #include "../../logger_module.hpp"
 
 #include <string>
+#include <fstream>
+#include <cstdio>
+
+#include <iostream>
+
 
 TEST_CASE("Create LogFile Class", TEST_NAME) {
 	printStartTest(TEST_NAME, "Create LogFile Class");
@@ -15,7 +20,7 @@ TEST_CASE("Create LogFile Class", TEST_NAME) {
 		GIVEN("const char* fileName") {
 			const char* fileName = "testing";
 			THEN("Class creation") {
-				LogFile logFile(fileName, FileFormat::TXT);
+				LogFile logFile(fileName, FileFormat::TXT, "..\\");
 
 				REQUIRE(logFile.getFileName() == fileName);
 			}
@@ -51,12 +56,12 @@ TEST_CASE("Class Methods", TEST_NAME) {
 				THEN("Class creation with Absolute Path and Correct Filename") {
 					LogFile logFile(fileName, FileFormat::TXT, filePathAbs);
 
-					REQUIRE(logFile.isInfoValid());
+					REQUIRE(logFile.isInfoValid(true));
 				}
 				AND_THEN("Class creation with Relative Path and Correct Filename") {
 					LogFile logFile(fileName, FileFormat::TXT, filePathRel);
 
-					REQUIRE(logFile.isInfoValid());
+					REQUIRE(logFile.isInfoValid(true));
 				}
 			}
 		}
@@ -81,10 +86,10 @@ TEST_CASE("Class Methods", TEST_NAME) {
 						LogFile logFile3(fileName3, FileFormat::TXT);
 						LogFile logFile4(fileName4, FileFormat::TXT);
 
-						REQUIRE(!logFile1.isInfoValid());
-						REQUIRE(!logFile2.isInfoValid());
-						REQUIRE(!logFile3.isInfoValid());
-						REQUIRE(!logFile4.isInfoValid());
+						REQUIRE(!logFile1.isInfoValid(true));
+						REQUIRE(!logFile2.isInfoValid(true));
+						REQUIRE(!logFile3.isInfoValid(true));
+						REQUIRE(!logFile4.isInfoValid(true));
 					}
 				}
 				AND_WHEN("File Path is invalid") {
@@ -106,10 +111,10 @@ TEST_CASE("Class Methods", TEST_NAME) {
 						LogFile logFile3(fileName, FileFormat::TXT, filePath3);
 						LogFile logFile4(fileName, FileFormat::TXT, filePath4);
 
-						REQUIRE(!logFile1.isInfoValid());
-						REQUIRE(!logFile2.isInfoValid());
-						REQUIRE(!logFile3.isInfoValid());
-						REQUIRE(!logFile4.isInfoValid());
+						REQUIRE(!logFile1.isInfoValid(true));
+						REQUIRE(!logFile2.isInfoValid(true));
+						REQUIRE(!logFile3.isInfoValid(true));
+						REQUIRE(!logFile4.isInfoValid(true));
 					}
 				}
 			}
