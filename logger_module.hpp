@@ -50,7 +50,7 @@ enum FileFormat {
 class LogFile {
 public:
 	/*
-	- file_name - name for your log file: 
+	- file_name - name for your log file:
 	Example: "filename"
 	- file_format - format of your log file: .txt, .csv, .log.
 	Example: FileFormat::LOG
@@ -74,8 +74,11 @@ public:
 		isPathAbsolute();
 
 		concatFullName();
-		
-		if (pathType != INVALID) initLogFile();
+
+		if (pathType != INVALID) {
+			bool fileInit = initLogFile();
+			if (!fileInit) pathType = INVALID;
+		}
 	};
 
 	/*
@@ -99,14 +102,14 @@ public:
 		isHeader = !fileHeader.empty();
 
 		pathRemoveLeadingSpaces();
-		
+
 		isPathAbsolute();
 
 		concatFullName();
-		
+
 		if (pathType != INVALID) {
 			bool fileInit = initLogFile();
-			if (!fileInit) pathType == INVALID;
+			if (!fileInit) pathType = INVALID;
 		}
 	};
 
@@ -121,7 +124,7 @@ public:
 	const FileFormat& getFileFormat() const { return fileFormat; }
 	const std::string& getFullFileName() const { return fileFullName; }
 
-	const std::string getFullPath() const { 
+	const std::string getFullPath() const {
 		if (pathType != INVALID) {
 			if (pathType == REL && (fullPath == REL_STAY || fullPath == REL_LEAVE)) return fullPath + fileFullName;
 			else return fullPath + PATH_SEP + fileFullName;
@@ -130,7 +133,7 @@ public:
 	}
 
 	// set new file name
-	void setFileName(const std::string& newFileName) { 
+	void setFileName(const std::string& newFileName) {
 		if (isNameValid(newFileName)) {
 			fileName = newFileName;
 			concatFullName();
@@ -165,13 +168,14 @@ private:
 		std::ifstream fileExists(fullFilePath);
 		if (!fileExists.good()) {
 			std::ofstream logFile(fullFilePath);
+			if (!logFile.is_open()) return false;
 			if (isHeader) {
 				//getHeaderSep();
 				logFile << fileHeader + END_LINE;
 			}
 			logFile.close();
-		}
-		return fileExists.good();
+		} else return fileExists.good();
+		return true;
 	}
 
 	// deleting unnecessary spaces before path
@@ -196,7 +200,7 @@ private:
 	bool isPathValid() {
 		if (fullPath.empty()) return false;
 #ifdef _WIN32
-		if (pathType == ABS && (fullPath.find(PATH_SEP) == std::string::npos 
+		if (pathType == ABS && (fullPath.find(PATH_SEP) == std::string::npos
 			|| (fullPath[1] != ':' && fullPath[2] != PATH_SEP))) return false;
 		else if (pathType == REL && fullPath[1] == ':') return false;
 #else
@@ -271,7 +275,7 @@ public:
 	/*
 	Log message to file
 	- file_path - absolute path to your log file
-	Example: 
+	Example:
 	1. Windows: "C:\\Windows\\logs.txt"
 	2. Linux: "/home/logs.csv"
 	- logMessage - std::string message that you want to log
@@ -301,7 +305,7 @@ public:
 		}
 		return false;
 	};
-	
+
 private:
 	// Initialization of log file
 	static bool initLogFile(const std::string& fullFilePath) {
