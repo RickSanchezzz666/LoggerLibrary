@@ -35,6 +35,8 @@
 
 #endif
 
+#define END_LINE "\n"
+
 
 enum PathType { ABS, REL, INVALID };
 
@@ -54,12 +56,18 @@ public:
 	Example: FileFormat::LOG
 	- folder_path - absolute or relative path to folder where to store logs.
 	Example: "../folder" Win - "..\\"
+	- header - your header in the log file.
+	Example: "name,date" or "name;time;count"
 	*/
-	LogFile(const std::string& file_name, FileFormat file_format, const std::string& folder_path = REL_STAY)
-		: fileName(file_name), fileFormat(file_format), fullPath(folder_path) 
+	LogFile(const std::string& file_name, FileFormat file_format, const std::string& folder_path = REL_STAY, const std::string& header = "")
+		: fileName(file_name), fileFormat(file_format), fullPath(folder_path), fileHeader(header)
 	{
 		fileName.erase(std::remove_if(fileName.begin(), fileName.end(), ::isspace), fileName.end());
 		if (fileName.length() > 256) fileName = fileName.substr(0, 256);
+
+		if (fullPath.empty()) fullPath = REL_STAY;
+
+		isHeader = !fileHeader.empty();
 
 		pathRemoveLeadingSpaces();
 
@@ -77,12 +85,18 @@ public:
 	Example: FileFormat::LOG
 	- folder_path - absolute or relative path to folder where to store logs.
 	Example: "../folder" Win - "..\\"
+	- header - your header in the log file.
+	Example: "name,date" or "name;time;count"
 	*/
-	LogFile(const char* file_name, FileFormat file_format, const std::string& folder_path = REL_STAY)
-		: fileName(std::string(file_name)), fileFormat(file_format), fullPath(folder_path) 
+	LogFile(const char* file_name, FileFormat file_format, const char* folder_path = REL_STAY, const char* header = "")
+		: fileName(std::string(file_name)), fileFormat(file_format), fullPath(std::string(folder_path)), fileHeader(std::string(header))
 	{
 		fileName.erase(std::remove_if(fileName.begin(), fileName.end(), ::isspace), fileName.end());
 		if (fileName.length() > 256) fileName = fileName.substr(0, 256);
+
+		if (fullPath.empty()) fullPath = REL_STAY;
+
+		isHeader = !fileHeader.empty();
 
 		pathRemoveLeadingSpaces();
 		
@@ -95,6 +109,7 @@ public:
 			if (!fileInit) pathType == INVALID;
 		}
 	};
+
 
 	// File info validation
 	bool isInfoValid() {
@@ -131,12 +146,29 @@ public:
 	~LogFile() {};
 
 private:
+	// getting separator from header
+	/*void getHeaderSep() {
+		if (isHeader) {
+			const std::string separators = ",;\t :|";
+			for (auto sep : separators) {
+				if (fileHeader.find(sep) != std::string::npos) {
+					headerSeparator = sep;
+					return;
+				}
+			}
+		}
+	}*/
+
 	// Initialization of log file
 	bool initLogFile() {
 		const std::string fullFilePath = getFullPath();
 		std::ifstream fileExists(fullFilePath);
 		if (!fileExists.good()) {
 			std::ofstream logFile(fullFilePath);
+			if (isHeader) {
+				//getHeaderSep();
+				logFile << fileHeader + END_LINE;
+			}
 			logFile.close();
 		}
 		return fileExists.good();
@@ -219,6 +251,10 @@ private:
 	std::string fileFullName = "logs.txt";
 	std::string fullPath = REL_STAY;
 
+	std::string fileHeader = "";
+	bool isHeader = false;
+	//char headerSeparator = '\0';
+
 public:
 	//For Testing
 	bool isInfoValid(bool TEST) {
@@ -226,11 +262,57 @@ public:
 	}
 };
 
+
 // Logger
 class Logger {
 public:
-	static void logToFile(LogFile& file) {};
-	static void logToFile(const std::string& file_path) {};
+	//TODO: timestamps
+
+	/*
+	Log message to file
+	- file_path - absolute path to your log file
+	Example: 
+	1. Windows: "C:\\Windows\\logs.txt"
+	2. Linux: "/home/logs.csv"
+	- logMessage - std::string message that you want to log
+	*/
+	static bool logToFile(const std::string& file_path, const std::string& logMessage) {
+		bool isValid = initLogFile(file_path);
+		if (isValid) {
+			std::ofstream logFile(file_path, std::ios::app);
+			if (logFile.is_open()) logFile << logMessage + END_LINE;
+			logFile.close();
+			return true;
+		}
+		return false;
+	};
+
+	/*
+	Log message to file
+	- file - LogFile class instance
+	- logMessage - std::string message that you want to log
+	*/
+	static bool logToFile(LogFile& file, const std::string& logMessage) {
+		if (file.isInfoValid()) {
+			std::ofstream logFile(file.getFullPath(), std::ios::app);
+			if (logFile.is_open()) logFile << logMessage + END_LINE;
+			logFile.close();
+			return true;
+		}
+		return false;
+	};
+	
+private:
+	// Initialization of log file
+	static bool initLogFile(const std::string& fullFilePath) {
+		std::ifstream fileExists(fullFilePath);
+		if (!fileExists.good()) {
+			std::ofstream logFile(fullFilePath);
+			logFile.close();
+		}
+		return fileExists.good();
+	}
 };
+
 
 #endif // LOGGER_MODULE_HPP

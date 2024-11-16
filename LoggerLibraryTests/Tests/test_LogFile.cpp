@@ -95,26 +95,22 @@ TEST_CASE("Class Methods", TEST_NAME) {
 				AND_WHEN("File Path is invalid") {
 					const std::string fileName = "testing";
 #ifdef _WIN32
-					const std::string filePath1 = "";
-					const std::string filePath2 = "D:d\\folder";
-					const std::string filePath3 = "./relative";
-					const std::string filePath4 = "...\\path";
+					const std::string filePath1 = "D:d\\folder";
+					const std::string filePath2 = "./relative";
+					const std::string filePath3 = "...\\path";
 #else
-					const std::string filePath1 = "";
-					const std::string filePath2 = "D:\\folder";
-					const std::string filePath3 = ".\\relative";
-					const std::string filePath4 = ".../path";
+					const std::string filePath1 = "D:\\folder";
+					const std::string filePath2 = ".\\relative";
+					const std::string filePath3 = ".../path";
 #endif
 					THEN("Class creation") {
 						LogFile logFile1(fileName, FileFormat::TXT, filePath1);
 						LogFile logFile2(fileName, FileFormat::TXT, filePath2);
 						LogFile logFile3(fileName, FileFormat::TXT, filePath3);
-						LogFile logFile4(fileName, FileFormat::TXT, filePath4);
 
 						REQUIRE(!logFile1.isInfoValid(true));
 						REQUIRE(!logFile2.isInfoValid(true));
 						REQUIRE(!logFile3.isInfoValid(true));
-						REQUIRE(!logFile4.isInfoValid(true));
 					}
 				}
 			}
