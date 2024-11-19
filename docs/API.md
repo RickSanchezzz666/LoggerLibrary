@@ -15,6 +15,7 @@
 
 # LogFile
 - ## Constructors
+    [**CONSTRUCTOR EXAMPLES**](EXAMPLES.md#1-logging-using-logfile-with-header)
     - **```LogFile(const std::string& file_name, FileFormat file_format, const std::string& folder_path = REL_STAY, const std::string& header = "")```**
 
     #### Usage
@@ -97,6 +98,7 @@
         - *const [FileFormat](#GlobalStructures)&* newFileFormat
 
 - ## Methods usage Examples
+    [**EXAMPLES**](EXAMPLES.md#7-usage-of-getterssetters-in-logfile)
     ### isInfoValid
         isInfoValid(); -> bool
     ### getFileName
@@ -136,4 +138,13 @@
         Output type: bool
     - #### Output
         True - if the logging is successful \
-        False - if the logging is unsuccessful 
+        False - if the logging is unsuccessful
+
+- ## Methods usage Examples
+    
+    ### logToFile - [**with path**](EXAMPLES.md#6-logging-using-path-withno-timestamps)
+        logToFile(".\\fileName.txt", "message"); -> bool
+    ### logToFile - [**with LogFile instance**](EXAMPLES.md#1-logging-using-logfile-with-header)
+        LogFile logFile();
+
+        logToFile(logFile, "message"); -> bool

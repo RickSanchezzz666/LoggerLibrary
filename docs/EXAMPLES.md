@@ -1,19 +1,17 @@
 # General
-```
-	File Path should only be in this formats depending on your System:
-	Windows:
-		Absolute: "D:\\Folder1\\Folder2"
-		Relative: ".\\Folder1" or "..\\Folder2"
-	Linux:
-		Absolute: "/home/Folder1"
-		Relative: "./Folder1" or "../Folder2"
+File Path should only be in this formats depending on your System:
+- Windows:
+	- Absolute: "D:\\Folder1\\Folder2"
+	- Relative: ".\\Folder1" or "..\\Folder2"
+- Linux:
+	- Absolute: "/home/Folder1"
+	- Relative: "./Folder1" or "../Folder2"
 
-	File Name have restrictions on naming depending on your System:
-		Windows Restricted symbols: "\\/:*?\"<>|"
-		Linux Restricted symbols:	"\\/"
+File Name have restrictions on naming depending on your System:
+- Windows Restricted symbols: "\\/:*?\"<>|"
+- Linux Restricted symbols:	"\\/"
 
-    Available File Formats: .txt, .csv, .log.
-```
+Available File Formats: **.txt, .csv, .log.**
 
 # 1. Logging using LogFile with header
 ```
