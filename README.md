@@ -1,7 +1,7 @@
 Single-Header Library for Simple logging in file using Plain C++ for Windows and Linux with No Dependencies needed.
 
 ## Quick Start
-- Download latest release - [**CLICK HERE**](https://github.com/RickSanchezzz666/LoggerLibrary/release/latest)
+- Download latest release - [**CLICK HERE**](https://github.com/RickSanchezzz666/LoggerLibrary/releases/latest)
  - Copy .hpp file **logger_module.hpp** into your source folder
  - Include header file in your source files - **#include logger_module.hpp**
  - And use it!:
