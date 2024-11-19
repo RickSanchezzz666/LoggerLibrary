@@ -20,6 +20,10 @@
 #include <algorithm> // remove_if
 #include <cctype> // ::isspace
 #include <fstream> // ofstream
+#include <chrono> // system_clock
+#include <ctime> // time_t
+#include <sstream> // ostringstream
+#include <iomanip> // put_time
 
 #ifdef _WIN32
 
@@ -27,13 +31,13 @@
 #define REL_STAY ".\\"
 #define REL_LEAVE "..\\"
 
-#else
+#else // UNIX
 
 #define PATH_SEP '/'
 #define REL_STAY "./"
 #define REL_LEAVE "../"
 
-#endif
+#endif // _WIN32
 
 #define END_LINE "\n"
 
@@ -54,9 +58,9 @@ public:
 	Example: "filename"
 	- file_format - format of your log file: .txt, .csv, .log.
 	Example: FileFormat::LOG
-	- folder_path - absolute or relative path to folder where to store logs.
+	- folder_path (default: "./") - absolute or relative path to folder where to store logs.
 	Example: "../folder" Win - "..\\"
-	- header - your header in the log file.
+	- header (default: "") - your header in the log file.
 	Example: "name,date" or "name;time;count"
 	*/
 	LogFile(const std::string& file_name, FileFormat file_format, const std::string& folder_path = REL_STAY, const std::string& header = "")
@@ -86,9 +90,9 @@ public:
 	Example: "filename"
 	- file_format - format of your log file: .txt, .csv, .log.
 	Example: FileFormat::LOG
-	- folder_path - absolute or relative path to folder where to store logs.
+	- folder_path (default: "./") - absolute or relative path to folder where to store logs.
 	Example: "../folder" Win - "..\\"
-	- header - your header in the log file.
+	- header (default: "") - your header in the log file.
 	Example: "name,date" or "name;time;count"
 	*/
 	LogFile(const char* file_name, FileFormat file_format, const char* folder_path = REL_STAY, const char* header = "")
@@ -190,9 +194,9 @@ private:
 	bool isNameValid(const std::string& file_name) {
 #ifdef _WIN32
 		const std::string forbiddenChars = "\\/:*?\"<>|";
-#else
+#else // UNIX
 		const std::string forbiddenChars = "\\/";
-#endif
+#endif // _WIN32
 		return (file_name.find_first_of(forbiddenChars) == std::string::npos && !file_name.empty());
 	};
 
@@ -203,10 +207,10 @@ private:
 		if (pathType == ABS && (fullPath.find(PATH_SEP) == std::string::npos
 			|| (fullPath[1] != ':' && fullPath[2] != PATH_SEP))) return false;
 		else if (pathType == REL && fullPath[1] == ':') return false;
-#else
+#else // UNIX
 		if (pathType == ABS && (fullPath.find(PATH_SEP) == std::string::npos || fullPath[0] != PATH_SEP)) return false;
 		else if (pathType == REL && fullPath[0] == '/') return false;
-#endif
+#endif // _WIN32
 		return pathType != INVALID;
 	};
 
@@ -218,11 +222,11 @@ private:
 		if (fullPath.find(REL_STAY) == 0 || fullPath.find(REL_LEAVE) == 0) pathType = REL;
 		else if (fullPath[1] == ':' && fullPath[2] == PATH_SEP) pathType = ABS;
 		else pathType = INVALID;
-#else
+#else // UNIX
 		if (fullPath.find(REL_STAY) == 0 || fullPath.find(REL_LEAVE) == 0) pathType = REL;
 		else if (fullPath[0] == '/') pathType = ABS;
 		else pathType = INVALID;
-#endif
+#endif // _WIN32
 	}
 
 	// Concatenate file name and format to full name: example.txt
@@ -270,21 +274,23 @@ public:
 // Logger
 class Logger {
 public:
-	//TODO: timestamps
-
 	/*
 	Log message to file
 	- file_path - absolute path to your log file
 	Example:
 	1. Windows: "C:\\Windows\\logs.txt"
 	2. Linux: "/home/logs.csv"
-	- logMessage - std::string message that you want to log
+	- log_message - std::string message that you want to log
+	Additional:
+	- add_timestamp (default: true) - adding timestamp in format "%H:%M:%S" to the beginning of the log message
 	*/
-	static bool logToFile(const std::string& file_path, const std::string& logMessage) {
+	static bool logToFile(const std::string& file_path, const std::string& log_message, bool add_timestamp = true) {
 		bool isValid = initLogFile(file_path);
 		if (isValid) {
 			std::ofstream logFile(file_path, std::ios::app);
-			if (logFile.is_open()) logFile << logMessage + END_LINE;
+			if (logFile.is_open()) {
+				logFile << (add_timestamp ? addTimeStamp() : "") + log_message + END_LINE;
+			}
 			logFile.close();
 			return true;
 		}
@@ -294,12 +300,16 @@ public:
 	/*
 	Log message to file
 	- file - LogFile class instance
-	- logMessage - std::string message that you want to log
+	- log_message - std::string message that you want to log
+	Additional:
+	- add_timestamp (default: true) - adding timestamp in format "%H:%M:%S" to the beginning of the log message 
 	*/
-	static bool logToFile(LogFile& file, const std::string& logMessage) {
+	static bool logToFile(LogFile& file, const std::string& log_message, bool add_timestamp = true) {
 		if (file.isInfoValid()) {
 			std::ofstream logFile(file.getFullPath(), std::ios::app);
-			if (logFile.is_open()) logFile << logMessage + END_LINE;
+			if (logFile.is_open()) {
+				logFile << (add_timestamp ? addTimeStamp() + " " : "") + log_message + END_LINE;
+			}
 			logFile.close();
 			return true;
 		}
@@ -315,6 +325,23 @@ private:
 			logFile.close();
 		}
 		return fileExists.good();
+	}
+
+	// Adding Time stamp in format "%H:%M:%S" to the log message
+	static std::string addTimeStamp() {
+		auto now = std::chrono::system_clock::now();
+		std::time_t time = std::chrono::system_clock::to_time_t(now);
+		std::tm timeInfo;
+		
+#ifdef _WIN32
+		localtime_s(&timeInfo, &time);
+#else // UNIX
+		localtime_r(&time, &timeInfo);
+#endif // _WIN32
+
+		std::ostringstream oss;
+		oss << "[" << std::put_time(&timeInfo, "%H:%M:%S") << "]";
+		return oss.str();
 	}
 };
 
