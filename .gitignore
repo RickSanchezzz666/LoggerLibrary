@@ -3,4 +3,9 @@
 !.gitignore
 !*.cpp
 !*.hpp
+!*.h
 !*.md
+!*.txt
+!*.json
+!Tests
+!LoggerLibraryTests
