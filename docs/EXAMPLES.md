@@ -1,3 +1,13 @@
+# Content
+- [General info](#general)
+- [#1 Example](#1-logging-using-logfile-with-header)
+- [#2 Example](#2-logging-using-logfile-withno-header)
+- [#3 Example](#3-logging-using-logfile-withno-timestamps)
+- [#4 Example](#4-logging-using-relative-path)
+- [#5 Example](#5-logging-using-absolute-path)
+- [#6 Example](#6-logging-using-path-withno-timestamps)
+- [#7 Example](#7-usage-of-getterssetters-in-logfile)
+
 # General
 File Path should only be in this formats depending on your System:
 - Windows:

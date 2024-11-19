@@ -1,3 +1,8 @@
+# Content
+- [GlobalStructures](#globalstructures)
+- [LogFile class](#logfile)
+- [Logger class](#logger)
+
 # GlobalStructures
 - Global:
     - END_LINE - "\n"
